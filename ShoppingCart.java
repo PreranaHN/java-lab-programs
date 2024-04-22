@@ -4,57 +4,82 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ShoppingCart {
-    private Map<String, Double> items;
+    private Map<String, Integer> items;
 
     public ShoppingCart() {
-        items = new HashMap<>();
+        this.items = new HashMap<>();
     }
 
     // Method to add items to the cart
-    public void addItem(String itemName, double price) {
+    public void addItem(String itemName, int quantity) {
         if (items.containsKey(itemName)) {
-            double currentPrice = items.get(itemName);
-            items.put(itemName, currentPrice + price);
+            int currentQuantity = items.get(itemName);
+            items.put(itemName, currentQuantity + quantity);
         } else {
-            items.put(itemName, price);
+            items.put(itemName, quantity);
         }
     }
 
     // Method to remove items from the cart
-    public void removeItem(String itemName) {
-        items.remove(itemName);
+    public void removeItem(String itemName, int quantity) {
+        if (items.containsKey(itemName)) {
+            int currentQuantity = items.get(itemName);
+            if (currentQuantity <= quantity) {
+                items.remove(itemName);
+            } else {
+                items.put(itemName, currentQuantity - quantity);
+            }
+        }
     }
 
-    // Method to calculate total price of items in the cart
-    public double calculateTotalPrice() {
+    // Method to calculate total price
+    public double calculateTotalPrice(Map<String, Double> itemPrices) {
         double totalPrice = 0.0;
-        for (double price : items.values()) {
-            totalPrice += price;
+        for (Map.Entry<String, Integer> entry : items.entrySet()) {
+            String itemName = entry.getKey();
+            int quantity = entry.getValue();
+            if (itemPrices.containsKey(itemName)) {
+                double itemPrice = itemPrices.get(itemName);
+                totalPrice += itemPrice * quantity;
+            }
         }
         return totalPrice;
     }
 
-    // Method to display items in the cart
-    public void displayItems() {
+    // Method to display cart details
+    public void displayCart() {
         System.out.println("Items in the cart:");
-        for (Map.Entry<String, Double> entry : items.entrySet()) {
-            System.out.println(entry.getKey() + " - $" + entry.getValue());
+        for (Map.Entry<String, Integer> entry : items.entrySet()) {
+            System.out.println(entry.getKey() + " - Quantity: " + entry.getValue());
         }
     }
 
     public static void main(String[] args) {
+        // Create an object of the ShoppingCart class
         ShoppingCart cart = new ShoppingCart();
 
-        cart.addItem("Laptop", 999.99);
-        cart.addItem("Mouse", 19.99);
-        cart.addItem("Keyboard", 49.99);
+        // Add items to the cart
+        cart.addItem("Apple", 2);
+        cart.addItem("Banana", 3);
+        cart.addItem("Orange", 1);
 
-        cart.displayItems();
-        System.out.println("Total Price: $" + cart.calculateTotalPrice());
+        // Display the cart details
+        cart.displayCart();
 
-        cart.removeItem("Mouse");
+        // Remove items from the cart
+        cart.removeItem("Banana", 1);
 
-        cart.displayItems();
-        System.out.println("Total Price: $" + cart.calculateTotalPrice());
+        // Display the updated cart details
+        cart.displayCart();
+
+        // Define item prices
+        Map<String, Double> itemPrices = new HashMap<>();
+        itemPrices.put("Apple", 0.5);
+        itemPrices.put("Banana", 0.4);
+        itemPrices.put("Orange", 0.6);
+
+        // Calculate and display the total price
+        double totalPrice = cart.calculateTotalPrice(itemPrices);
+        System.out.println("Total Price: $" + totalPrice);
     }
 }
